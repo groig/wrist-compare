@@ -1,0 +1,45 @@
+npm notice run wrist-compare@0.1.0 build
+npm notice run npm run preflight && aiot build
+npm notice run wrist-compare@0.1.0 preflight
+npm notice run node scripts/preflight.cjs
+Wrist Compare: identity, route, features, native bindings, icon, offline core and preview passed.
+🔷 [09-10 11:10:42] [toolkit]: start build:  {
+  "projectPath": "/home/roig/prj/wrist-suite/wrist-compare",
+  "options": {
+    "sourceRoot": "./src",
+    "signRoot": "./sign",
+    "releasePath": "./dist",
+    "outputPath": "./build",
+    "enableJsc": false,
+    "enableProtobuf": false,
+    "enableE2e": false,
+    "enableStats": false,
+    "optimizeCssAttr": false,
+    "completeFeature": false,
+    "dropConsole": false,
+    "mode": "development"
+  },
+  "watch": false,
+  "node": "v22.23.2",
+  "platform": "linux",
+  "arch": "x64",
+  "toolkit": "2.0.5"
+}
+🔷 [09-10 11:10:42] [toolkit]: afterCompile: undefined
+🔷 [09-10 11:10:42] [toolkit]: afterCompile: Create a soft link to the node_modules folder
+🔷 [09-10 11:10:42] [toolkit]: afterCompile: Compile javascript project
+🔷 [09-10 11:10:43] [toolkit]: webpack complete
+🔷 [09-10 11:10:43] [toolkit]: afterCompile: Copy resource files
+🔷 [09-10 11:10:43] [toolkit]: afterCompile: Compress resource files
+🔷 [09-10 11:10:43] [toolkit]: afterCompile: Generate jsc bytecode
+🔷 [09-10 11:10:43] [toolkit]: afterCompile: Generate protobuf json
+🔷 [09-10 11:10:43] [toolkit]: afterCompile: compile lite card
+🔷 [09-10 11:10:43] [toolkit]: afterCompile: Package the project into an RPK file
+🔷 [09-10 11:10:43] [toolkit]: privatekeyPath is  /home/roig/prj/wrist-suite/.temp_wrist-compare/sign/private.pem 
+certificatePath is  /home/roig/prj/wrist-suite/.temp_wrist-compare/sign/certificate.pem
+✅ [09-10 11:10:43] [toolkit]: Project build and generate files：/home/roig/prj/wrist-suite/.temp_wrist-compare/dist/org.roig.wristcompare.debug.0.1.0.rpk
+🔷 [09-10 11:10:43] [toolkit]: afterCompile: Generate diff json
+🔷 [09-10 11:10:43] [toolkit]: afterCompile: Migrate temporary project
+🔷 [09-10 11:10:43] [toolkit]: afterCompile: Check resource
+✅ [09-10 11:10:43] [toolkit]: build success: 743ms
+🟠 [09-10 11:10:43] [toolkit]: please use AIoT-IDE: https://iot.mi.com/vela/quickapp/zh/guide/start/use-ide.html

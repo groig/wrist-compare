@@ -1,0 +1,32 @@
+{
+  "package": "org.roig.wristcompare",
+  "name": "Wrist Compare",
+  "icon": "/common/images/icon.png",
+  "versionName": "0.1.0",
+  "versionCode": 1,
+  "minAPILevel": 1,
+  "deviceTypeList": [
+    "watch"
+  ],
+  "features": [
+    {
+      "name": "system.storage"
+    }
+  ],
+  "permissions": [],
+  "config": {
+    "logLevel": "error",
+    "designWidth": 212
+  },
+  "router": {
+    "entry": "pages/compare",
+    "pages": {
+      "pages/compare": {
+        "component": "index"
+      }
+    }
+  },
+  "display": {
+    "backgroundColor": "#000000"
+  }
+}

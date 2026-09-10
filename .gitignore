@@ -1,0 +1,55 @@
+# Dependencies and local caches
+node_modules/
+.npm/
+.cache/
+
+# Vela build output and compiled packages
+/build/
+/dist/
+*.rpk
+*.rpk.map
+
+# Signing identity and other private key material
+# Back up sign/ privately and reuse it for updates; never commit it.
+/sign/
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+
+# Local secrets (allow sanitized example files)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Test coverage and runtime logs
+/coverage/
+.nyc_output/
+*.log
+*.log.*
+npm-debug.log*
+
+# Temporary files and local editor settings
+/tmp/
+/temp/
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Operating-system metadata
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
+# Intentionally tracked: package-lock.json, preview.html, source assets,
+# tests, and documentation (including recorded validation results).
+
+/output/
+/.playwright-cli/

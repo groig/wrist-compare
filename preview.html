@@ -1,0 +1,200 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wrist Compare — preview</title><link rel="icon" href="data:,">
+<style>*{box-sizing:border-box}body{margin:0;background:#0d1218;color:#f5f7f8;font-family:Arial,sans-serif;padding:24px;display:flex;justify-content:center;gap:40px;align-items:center;min-height:100vh}.screen{position:relative;width:212px;height:520px;border-radius:106px;overflow:hidden;background:#000;flex-shrink:0;box-shadow:0 0 0 8px #232a30}.element{position:absolute;margin:0;padding:2px;border:0;display:flex;align-items:center;justify-content:center;text-align:center;font-family:Arial,sans-serif;font-weight:bold;line-height:1.15;white-space:pre-line;overflow:hidden}.element span{max-width:100%;overflow-wrap:normal}button{cursor:pointer;touch-action:manipulation}button:active{filter:brightness(1.3)}button:focus-visible{outline:2px solid white;outline-offset:-3px}aside{max-width:340px;line-height:1.6;color:#a4b3b8}h1{color:#f5f7f8;font-size:28px}aside button{padding:10px;background:#232a30;color:#f5f7f8;border:1px solid #70dbc5;border-radius:8px}@media(max-width:650px){body{flex-direction:column;gap:24px}}
+</style><div id="screen" class="screen" aria-label="Wrist Compare: 212 by 520 band preview"></div><aside><h1>Wrist Compare</h1><p>Offline · 0.1.0 · Xiaomi Smart Band 10</p><p>Tap the controls. Digits and Backspace work in editors; Enter commits, Escape cancels. Focused buttons also support Enter and Space.</p><button id="zoom" type="button">Enlarge 2×</button><p>This preview shares the native app’s engine, state and layout. It is not a Vela emulator. Physical-band behavior is unverified.</p></aside>
+<script>/* MIT: Wrist Calc contributors (2026), and Wrist Suite contributors (2026).
+ * Small platform-free input, display and geometry helpers. No arithmetic rounding.
+ */
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.WristShared=factory();}(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+function finite(n){return typeof n==='number'&&isFinite(n);}
+function checked(n){if(!finite(n))throw Error('Out of range');return n===0?0:n;}
+function decimal(text){
+ if(typeof text!=='string'||!/^[-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(text))throw Error('Enter a complete number');
+ return checked(Number(text));
+}
+function format(n,precision){
+ checked(n);if(n===0)return '0';
+ var p=precision||8, s=Number(n.toPrecision(p)).toString();
+ if(s.length<=12)return s;
+ return n.toExponential(Math.min(p-1,5)).replace(/\.?0+e/,'e').replace('e+','e');
+}
+function edit(text,key,signed,integer){
+ if(key==='AC')return '';
+ if(key==='DEL')return text.slice(0,-1);
+ if(key==='+/-'&&signed)return text.charAt(0)==='-'?text.slice(1):'-'+text;
+ if(key==='.'&&!integer&&text.indexOf('.')<0)return text+'.';
+ if(/^\d$/.test(key)){
+  if(text.replace(/[-.]/g,'').length>=12)throw Error('12 digit limit');
+  if(text==='0')return key;if(text==='-0')return '-'+key;
+  return text+key;
+ }
+ return text;
+}
+function canvas(){
+ var els=[];
+ function add(text,x,y,w,h,action,value,tone,font,lines){
+  var a=action||'',t=tone||(a?'button':'plain');
+  els.push({id:String(els.length),text:String(text),x:x,y:y,w:w,h:h,action:a,value:value===undefined?'':String(value),tone:t,font:font||18,lines:lines||1,
+   background:t==='accent'?'#70dbc5':t==='button'?'#191f25':t==='secondary'?'#232a30':'#000000',
+   color:t==='accent'?'#09251f':t==='muted'?'#a4b3b8':t==='teal'?'#70dbc5':'#f5f7f8',radius:a?10:0});
+ }
+ return {elements:els,add:add,
+  text:function(t,y,h,font,tone,lines){add(t,16,y,180,h,'','',tone||'plain',font,lines);},
+  button:function(t,y,action,value,tone,h){add(t,16,y,180,h||50,action,value,tone||'button',18);},
+  pair:function(a,b,y){add(a[0],12,y,92,44,a[1],a[2],a[3]||'secondary',15);add(b[0],108,y,92,44,b[1],b[2],b[3]||'secondary',15);},
+  keypad:function(title,draft,error,signed,integer,extra){
+   this.text(title,68,24,17,'muted');this.text(draft||'—',98,38,draft.length>11?22:30);
+   this.text(error||'',139,26,12,'teal',2);
+   ['AC','DEL',signed?'+/-':extra?'Mode':'','Cancel'].forEach(function(k,i){if(k)add(k,12+i*48,170,44,40,k==='Cancel'?'cancel':k==='Mode'?'mode':'key',k,'secondary',k==='Cancel'?11:14);});
+   var keys=integer?['7','8','9','4','5','6','1','2','3','','0','Done']:['7','8','9','4','5','6','1','2','3','.','0','Done'];
+   keys.forEach(function(k,i){if(k)add(k,12+(i%3)*64,242+Math.floor(i/3)*56,60,50,k==='Done'?'done':'key',k,k==='Done'?'accent':'button',k==='Done'?15:26);});
+  }
+ };
+}
+return {finite:finite,checked:checked,decimal:decimal,format:format,edit:edit,canvas:canvas};
+}));
+
+/* Best-effort string storage. Platform API is injected; tests use fake callbacks. */
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.WristPreferences=factory();}(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+function connect(storage,key,app,render){
+ var alive=true,touched=false,busy=false,pending=null,last=JSON.stringify(app.snapshot().preferences);
+ function flush(){
+  if(!alive||busy||pending===null)return;
+  var value=pending;pending=null;busy=true;
+  function finish(){if(!busy)return;busy=false;flush();}
+  try{if(!storage||typeof storage.set!=='function'){finish();return;}storage.set({key:key,value:value,success:finish,fail:finish});}catch(e){finish();}
+ }
+ try{if(storage&&typeof storage.get==='function')storage.get({key:key,default:'',success:function(raw){
+  if(!alive||touched)return;
+  try{app.dispatch({type:'restore',value:JSON.parse(raw)});}catch(e){}
+  last=JSON.stringify(app.snapshot().preferences);render();
+ },fail:function(){}});}catch(e){}
+ return {dispatch:function(action){
+  if(!alive)return;
+  touched=true;app.dispatch(action);var next=JSON.stringify(app.snapshot().preferences);
+  if(next!==last){last=next;pending=next;flush();}render();
+ },destroy:function(){alive=false;pending=null;}};
+}
+return {connect:connect};
+}));
+
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./shared.js'));else root.WristCore=factory(root.WristShared);}(typeof globalThis!=='undefined'?globalThis:this,function(U){
+'use strict';
+// Exact international mass and US liquid-volume definitions, represented as doubles.
+var dimensions={mass:{label:'Mass',units:[['g','g',1],['kg','kg',1000],['oz','oz',28.349523125],['lb','lb',453.59237]],bases:[['kg','per kg',1000],['100g','per 100 g',100]]},volume:{label:'Volume',units:[['ml','mL',1],['l','L',1000],['usfloz','US fl oz',29.5735295625]],bases:[['l','per L',1000],['100ml','per 100 mL',100]]},count:{label:'Count',units:[['items','items',1]],bases:[['item','per item',1]]}};
+function dimension(id){if(!Object.prototype.hasOwnProperty.call(dimensions,id))throw Error('Invalid dimension');return dimensions[id];}
+function unit(dim,id){var list=dimension(dim).units;for(var i=0;i<list.length;i++)if(list[i][0]===id)return list[i];throw Error('Choose a valid unit');}
+function validatePackage(p,dim){
+ if(!p||!U.finite(p.price)||p.price<0)throw Error('Enter a price of 0 or more');
+ if(!U.finite(p.quantity)||p.quantity<=0)throw Error('Quantity must be > 0');
+ if(dim==='count'&&Math.floor(p.quantity)!==p.quantity)throw Error('Use whole items');
+ var q=U.checked(p.quantity*unit(dim,p.unit)[2]);if(q<=0)throw Error('Quantity out of range');
+ var rate=U.checked(p.price/q);if(p.price>0&&rate===0)throw Error('Rate out of range');return rate;
+}
+function compare(input,basis){
+ var d=dimension(input.dimension),a=validatePackage(input.a,input.dimension),b=validatePackage(input.b,input.dimension),selected=d.bases[0];
+ if(basis){selected=d.bases.filter(function(x){return x[0]===basis;})[0];if(!selected)throw Error('Invalid display basis');}
+ var high=Math.max(a,b),equal=a===b||Math.abs(a-b)<=1e-12*high,winner=equal?'equal':a<b?'A':'B';
+ var saving=equal?0:100*((high-Math.min(a,b))/high);
+ return {winner:winner,saving:U.checked(saving),unitPriceA:a,unitPriceB:b,rateA:U.checked(a*selected[2]),rateB:U.checked(b*selected[2]),basis:selected[1],lowerTotal:input.a.price===input.b.price?'equal':input.a.price<input.b.price?'A':'B'};
+}
+function createApp(){
+ var dim='mass',bases={mass:'kg',volume:'l',count:'item'},a={price:null,quantity:null,unit:'g'},b={price:null,quantity:null,unit:'g'},screen='overview',error='',draft='',draftUnit='',field='',returnScreen='overview',pending='',touched=false;
+ function pack(id){return id==='A'?a:b;}
+ function dispatch(act){
+  if(!act||typeof act.type!=='string')return snapshot();
+  if(act.type==='restore'){
+   if(!touched&&act.value){if(Object.prototype.hasOwnProperty.call(dimensions,act.value.dimension)){dim=act.value.dimension;a.unit=b.unit=dimension(dim).units[0][0];}
+    Object.keys(bases).forEach(function(k){var n=act.value.bases&&act.value.bases[k];if(dimension(k).bases.some(function(x){return x[0]===n;}))bases[k]=n;});}
+   return snapshot();
+  }
+  touched=true;error='';
+  try{
+   if(act.type==='edit'){
+    returnScreen=screen==='results'||screen==='details'?'results':'overview';field=act.value;
+    var p=pack(field.charAt(0)),key=field.slice(1);if(key!=='price'&&key!=='quantity')throw Error('Invalid field');
+    draft=p[key]===null?'':String(p[key]);draftUnit=p.unit||dimension(dim).units[0][0];screen='editor';
+   }
+   else if(act.type==='key'&&screen==='editor')draft=U.edit(draft,act.value,false,dim==='count'&&field.slice(1)==='quantity');
+   else if(act.type==='mode'&&screen==='editor'&&field.slice(1)==='quantity')screen='units';
+   else if(act.type==='unit'){unit(dim,act.value);draftUnit=act.value;screen='editor';}
+   else if(act.type==='done'&&screen==='editor'){
+    var n=U.decimal(draft),p=pack(field.charAt(0)),key=field.slice(1);
+    if(key==='price'){if(n<0)throw Error('Price must be 0 or more');p.price=n;}
+    else {validatePackage({price:0,quantity:n,unit:draftUnit},dim);p.quantity=n;p.unit=draftUnit;}
+    screen=returnScreen;
+   }
+   else if(act.type==='cancel'||act.type==='back')screen=screen==='units'?'editor':screen==='editor'?returnScreen:'overview';
+   else if(act.type==='compare'){compare({dimension:dim,a:a,b:b},bases[dim]);screen='results';}
+   else if(act.type==='overview')screen='overview';
+   else if(act.type==='details')screen='details';
+   else if(act.type==='basis'){var opts=dimension(dim).bases;bases[dim]=opts[(opts.findIndex(function(x){return x[0]===bases[dim];})+1)%opts.length][0];}
+   else if(act.type==='dimensions')screen='dimensions';
+   else if(act.type==='dimension'){
+    dimension(act.value);if(act.value===dim)screen='overview';
+    else if(a.quantity!==null||b.quantity!==null){pending=act.value;screen='confirmDimension';}
+    else {dim=act.value;a.unit=b.unit=null;screen='overview';}
+   }
+   else if(act.type==='reset'){screen=a.price!==null||a.quantity!==null||b.price!==null||b.quantity!==null?'confirmReset':'overview';}
+   else if(act.type==='confirm'){
+    if(screen==='confirmDimension'){dim=pending;a.quantity=b.quantity=null;a.unit=b.unit=null;}
+    else if(screen==='confirmReset'){a={price:null,quantity:null,unit:dimension(dim).units[0][0]};b={price:null,quantity:null,unit:dimension(dim).units[0][0]};}
+    screen='overview';
+   }
+  }catch(e){error=e.message||'Check the values';}
+  return snapshot();
+ }
+ function amount(p,key){return p[key]===null?'Tap to enter':U.format(p[key]);}
+ function quantityText(p){return amount(p,'quantity')+(p.unit?' '+unit(dim,p.unit)[1]:'');}
+ function snapshot(){
+  var v=U.canvas(),d=dimension(dim),r=null;
+  if(screen==='editor'){
+   var isQty=field.slice(1)==='quantity';v.keypad(field.charAt(0)+(isQty?' quantity · '+unit(dim,draftUnit)[1]:' price'),draft,error,false,isQty&&dim==='count',isQty&&dim!=='count');
+   if(isQty){v.text('Total quantity in this package',214,22,11,'muted');var modeButton=v.elements.filter(function(x){return x.action==='mode';})[0];if(modeButton)modeButton.text='Unit';}
+  }else if(screen==='units'||screen==='dimensions'){
+   v.text(screen==='units'?'Quantity unit':'Compare by',68,28,20,'muted');
+   var opts=screen==='units'?d.units:Object.keys(dimensions).map(function(k){return [k,dimensions[k].label];});
+   opts.forEach(function(o,i){v.button(o[1],112+i*60,screen==='units'?'unit':'dimension',o[0]);});
+   v.button('Cancel',402,'cancel','','secondary',44);
+  }else if(screen==='confirmDimension'||screen==='confirmReset'){
+   v.text(screen==='confirmReset'?'Reset comparison?':'Change dimension?',76,58,22,'plain',2);
+   v.text(screen==='confirmReset'?'Both packages will be cleared.':'Quantities and units will be cleared. Prices stay.',166,92,19,'muted',4);
+   v.button('Confirm',330,'confirm','','accent');v.button('Cancel',396,'cancel');
+  }else if(screen==='results'){
+   try{r=compare({dimension:dim,a:a,b:b},bases[dim]);}catch(e){error=e.message;}
+   if(r){v.text(r.winner==='equal'?'Equal per unit':r.winner+' is better\nper unit',68,50,20,'teal',2);
+    v.button(r.basis,125,d.bases.length>1?'basis':'details','','secondary',36);
+    v.text('A  '+U.format(r.rateA),173,40,U.format(r.rateA).length>9?20:27);v.text('B  '+U.format(r.rateB),221,40,U.format(r.rateB).length>9?20:27);
+    var sameDisplay=U.format(r.rateA)===U.format(r.rateB)&&r.winner!=='equal';
+    var percent=U.format(r.saving,6);if(percent==='100'&&Math.min(r.unitPriceA,r.unitPriceB)>0)percent='~100';
+    v.text(r.winner==='equal'?'Same rate within tolerance':percent+'% cheaper per unit\nthan '+(r.winner==='A'?'B':'A'),274,60,17,'muted',3);
+    if(sameDisplay)v.text('Small difference; rates rounded',333,20,11,'teal');
+   }
+   v.button('Package totals',358,'details','','secondary',42);v.pair(['Edit','overview'],['Reset','reset'],412);
+  }else if(screen==='details'){
+   v.text('Package totals',72,30,22,'muted');
+   v.text('A  price '+amount(a,'price'),124,40,19);v.text(quantityText(a),166,34,19,'teal');
+   v.text('B  price '+amount(b,'price'),230,40,19);v.text(quantityText(b),272,34,19,'teal');
+   v.text('Unit value differs from\ntotal cash to buy today.',327,44,14,'muted',2);
+   v.pair(['Results','compare'],['Edit','overview'],405);
+  }else{
+   v.button(d.label,68,'dimensions','','secondary',40);
+   v.text('Same currency for A and B',113,28,12,'muted');
+   [['A',a],['B',b]].forEach(function(pair,i){var id=pair[0],p=pair[1];v.add(id+' price\n'+amount(p,'price'),16,148+i*120,180,52,'edit',id+'price','button',18,2);v.add(id+' quantity\n'+quantityText(p),16,206+i*120,180,52,'edit',id+'quantity','button',18,2);});
+   v.text(error,381,24,12,'teal',2);v.pair(['Compare','compare','','accent'],['Reset','reset'],412);
+  }
+  return {screen:screen,dimension:dim,a:Object.assign({},a),b:Object.assign({},b),draft:draft,draftUnit:draftUnit,error:error,result:r,preferences:{dimension:dim,bases:Object.assign({},bases)},elements:v.elements};
+ }
+ return {dispatch:dispatch,snapshot:snapshot};
+}
+return {dimensions:dimensions,compare:compare,createApp:createApp};
+}));
+</script><script>
+const app=WristCore.createApp();window.wristApp=app;const screen=document.getElementById('screen');
+function render(){const focused=document.activeElement;const focusKey=focused&&focused.dataset?focused.dataset.action+'|'+focused.dataset.value:'';screen.replaceChildren();const s=app.snapshot();screen.dataset.screen=s.screen;s.elements.forEach(e=>{const el=document.createElement(e.action?'button':'div');el.className='element';el.dataset.action=e.action;el.dataset.value=e.value;el.dataset.id=e.id;if(e.action)el.type='button';el.style.cssText='left:'+e.x+'px;top:'+e.y+'px;width:'+e.w+'px;height:'+e.h+'px;background:'+e.background+';color:'+e.color+';font-size:'+e.font+'px;border-radius:'+e.radius+'px';const span=document.createElement('span');span.textContent=e.text;el.appendChild(span);if(e.action)el.addEventListener('click',()=>connection.dispatch({type:e.action,value:e.value}));screen.appendChild(el);if(e.action&&e.action+'|'+e.value===focusKey)el.focus({preventScroll:true});});}
+const adapter={get:o=>{try{o.success(localStorage.getItem('org.roig.wristcompare.preferences-v1')||'');}catch(e){if(o.fail)o.fail();}},set:o=>{try{localStorage.setItem('org.roig.wristcompare.preferences-v1',o.value);o.success();}catch(e){o.fail();}}};
+const connection=WristPreferences.connect(adapter,'preferences-v1',app,render);window.wristDispatch=a=>connection.dispatch(a);render();
+document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;if((e.key==='Enter'||e.key===' ')&&e.target.tagName==='BUTTON')return;const s=app.snapshot();let action=null;if(e.key==='Escape')action=s.elements.find(x=>x.action==='cancel'||x.action==='back');else if(e.key==='Enter')action=s.elements.find(x=>x.action==='done'||x.action==='roll');else if(e.key===' '&&s.screen==='home')action=s.elements.find(x=>x.action==='roll');else{const key=e.key==='Backspace'?'DEL':e.key==='Delete'?'AC':e.key;action=s.elements.find(x=>x.action==='key'&&x.value===key);}if(action){e.preventDefault();connection.dispatch({type:action.action,value:action.value});}});
+let enlarged=false;document.getElementById('zoom').addEventListener('click',()=>{enlarged=!enlarged;screen.style.zoom=enlarged?2:1;document.getElementById('zoom').textContent=enlarged?'Native size':'Enlarge 2×';});
+</script></html>

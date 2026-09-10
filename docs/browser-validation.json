@@ -1,0 +1,81 @@
+{
+  "reports": {
+    "compare-home": {
+      "screen": "overview",
+      "issues": []
+    },
+    "compare-editor-Aprice": {
+      "screen": "editor",
+      "issues": []
+    },
+    "compare-editor-Aquantity": {
+      "screen": "editor",
+      "issues": []
+    },
+    "compare-editor-Bprice": {
+      "screen": "editor",
+      "issues": []
+    },
+    "compare-editor-Bquantity": {
+      "screen": "editor",
+      "issues": []
+    },
+    "compare-results": {
+      "screen": "results",
+      "issues": []
+    },
+    "compare-results-basis": {
+      "screen": "results",
+      "issues": []
+    },
+    "compare-details": {
+      "screen": "details",
+      "issues": []
+    },
+    "compare-dimensions": {
+      "screen": "dimensions",
+      "issues": []
+    },
+    "compare-dimension-confirm": {
+      "screen": "confirmDimension",
+      "issues": []
+    },
+    "compare-units-usfloz": {
+      "screen": "units",
+      "issues": []
+    },
+    "compare-units-l": {
+      "screen": "units",
+      "issues": []
+    },
+    "compare-long-overview": {
+      "screen": "overview",
+      "issues": []
+    },
+    "compare-long-results": {
+      "screen": "results",
+      "issues": []
+    },
+    "compare-long-details": {
+      "screen": "details",
+      "issues": []
+    },
+    "compare-reset": {
+      "screen": "confirmReset",
+      "issues": []
+    },
+    "compare-count": {
+      "screen": "results",
+      "issues": []
+    },
+    "compare-mobile": {
+      "screen": "results",
+      "issues": []
+    },
+    "compare-enlarged": {
+      "screen": "results",
+      "issues": []
+    }
+  },
+  "pageErrors": []
+}

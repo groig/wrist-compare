@@ -1,0 +1,30 @@
+<template>
+  <div class="page">
+    <div for="{{ elements }}" tid="id" class="box" style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ $item.w }}px; height: {{ $item.h }}px; background-color: {{ $item.background }}; border-radius: {{ $item.radius }}px;" onclick="tap($item.action, $item.value)">
+      <text class="label" style="width: {{ $item.w - 4 }}px; font-size: {{ $item.font }}px; color: {{ $item.color }}; lines: {{ $item.lines }};">{{ $item.text }}</text>
+    </div>
+  </div>
+</template>
+<script>
+const Core = require('../../common/core.js');
+const Preferences = require('../../common/preferences.js');
+const storage = require('@system.storage');
+let app = null;
+let connection = null;
+export default {
+  private: { elements: [] },
+  onInit() {
+    app = Core.createApp();
+    this.refresh();
+    connection = Preferences.connect(storage, 'preferences-v1', app, () => this.refresh());
+  },
+  onDestroy() { if (connection) connection.destroy(); connection = null; app = null; },
+  tap(action, value) { if (action && connection) connection.dispatch({ type: action, value: value }); },
+  refresh() { if (app) this.elements = app.snapshot().elements; }
+};
+</script>
+<style>
+.page { width: 212px; height: 520px; background-color: #000000; position: relative; }
+.box { position: absolute; justify-content: center; align-items: center; }
+.label { text-align: center; font-weight: bold; text-overflow: clip; }
+</style>

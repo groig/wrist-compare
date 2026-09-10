@@ -1,0 +1,5 @@
+{
+  "scenarios": 12,
+  "failures": [],
+  "description": "Converter: every source unit, large/tiny entries, editor and both result pages. Comparator: both-free, one-free, near-tie and extreme prices across basis and details."
+}

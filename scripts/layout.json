@@ -1,0 +1,14 @@
+{
+  "width": 212,
+  "height": 520,
+  "safeTop": 68,
+  "safeBottom": 460,
+  "keypad": {
+    "left": 12,
+    "width": 60,
+    "height": 50,
+    "columnStep": 64,
+    "top": 242,
+    "rowStep": 56
+  }
+}

@@ -1,0 +1,174 @@
+npm notice run wrist-compare@0.1.0 test
+npm notice run node --test test/*.test.cjs
+TAP version 13
+# Subtest: bad storage 
+ok 1 - bad storage 
+  ---
+  duration_ms: 1.909579
+  type: 'test'
+  ...
+# Subtest: bad storage {}
+ok 2 - bad storage {}
+  ---
+  duration_ms: 1.069308
+  type: 'test'
+  ...
+# Subtest: bad storage null
+ok 3 - bad storage null
+  ---
+  duration_ms: 0.156285
+  type: 'test'
+  ...
+# Subtest: bad storage oops
+ok 4 - bad storage oops
+  ---
+  duration_ms: 0.103081
+  type: 'test'
+  ...
+# Subtest: bad storage {"max":8,"category":"bad","dimension":"bad"}
+ok 5 - bad storage {"max":8,"category":"bad","dimension":"bad"}
+  ---
+  duration_ms: 0.16488
+  type: 'test'
+  ...
+# Subtest: absent, thrown and failed storage never blocks utility
+ok 6 - absent, thrown and failed storage never blocks utility
+  ---
+  duration_ms: 0.341128
+  type: 'test'
+  ...
+# Subtest: late reads, writes only on changes, serialization and destruction
+ok 7 - late reads, writes only on changes, serialization and destruction
+  ---
+  duration_ms: 0.182249
+  type: 'test'
+  ...
+# Subtest: tiny numbers and negative zero format honestly; strict editor input
+ok 8 - tiny numbers and negative zero format honestly; strict editor input
+  ---
+  duration_ms: 0.363632
+  type: 'test'
+  ...
+# Subtest: all native/preview view geometries and navigation pages fit capsule
+ok 9 - all native/preview view geometries and navigation pages fit capsule
+  ---
+  duration_ms: 3.464735
+  type: 'test'
+  ...
+# Subtest: pending preference writes coalesce and storage errors release the queue
+ok 10 - pending preference writes coalesce and storage errors release the queue
+  ---
+  duration_ms: 0.327833
+  type: 'test'
+  ...
+# Subtest: {"dimension":"mass","a":{"price":4,"quantity":500,"unit":"g"},"b":{"price":5.5,"quantity":750,"unit":"g"}}
+ok 11 - {"dimension":"mass","a":{"price":4,"quantity":500,"unit":"g"},"b":{"price":5.5,"quantity":750,"unit":"g"}}
+  ---
+  duration_ms: 1.042414
+  type: 'test'
+  ...
+# Subtest: {"dimension":"mass","a":{"price":3,"quantity":250,"unit":"g"},"b":{"price":10,"quantity":1,"unit":"kg"}}
+ok 12 - {"dimension":"mass","a":{"price":3,"quantity":250,"unit":"g"},"b":{"price":10,"quantity":1,"unit":"kg"}}
+  ---
+  duration_ms: 0.115929
+  type: 'test'
+  ...
+# Subtest: {"dimension":"mass","a":{"price":4,"quantity":16,"unit":"oz"},"b":{"price":8,"quantity":2,"unit":"lb"}}
+ok 13 - {"dimension":"mass","a":{"price":4,"quantity":16,"unit":"oz"},"b":{"price":8,"quantity":2,"unit":"lb"}}
+  ---
+  duration_ms: 0.791063
+  type: 'test'
+  ...
+# Subtest: {"dimension":"volume","a":{"price":3,"quantity":750,"unit":"ml"},"b":{"price":5,"quantity":2,"unit":"l"}}
+ok 14 - {"dimension":"volume","a":{"price":3,"quantity":750,"unit":"ml"},"b":{"price":5,"quantity":2,"unit":"l"}}
+  ---
+  duration_ms: 0.076026
+  type: 'test'
+  ...
+# Subtest: {"dimension":"count","a":{"price":6,"quantity":12,"unit":"items"},"b":{"price":8,"quantity":20,"unit":"items"}}
+ok 15 - {"dimension":"count","a":{"price":6,"quantity":12,"unit":"items"},"b":{"price":8,"quantity":20,"unit":"items"}}
+  ---
+  duration_ms: 0.109048
+  type: 'test'
+  ...
+# Subtest: {"dimension":"mass","a":{"price":0,"quantity":500,"unit":"g"},"b":{"price":1,"quantity":500,"unit":"g"}}
+ok 16 - {"dimension":"mass","a":{"price":0,"quantity":500,"unit":"g"},"b":{"price":1,"quantity":500,"unit":"g"}}
+  ---
+  duration_ms: 0.050703
+  type: 'test'
+  ...
+# Subtest: {"dimension":"mass","a":{"price":0,"quantity":500,"unit":"g"},"b":{"price":0,"quantity":500,"unit":"g"}}
+ok 17 - {"dimension":"mass","a":{"price":0,"quantity":500,"unit":"g"},"b":{"price":0,"quantity":500,"unit":"g"}}
+  ---
+  duration_ms: 0.085457
+  type: 'test'
+  ...
+# Subtest: cheaper unit price is separate from lower cash price
+ok 18 - cheaper unit price is separate from lower cash price
+  ---
+  duration_ms: 0.447614
+  type: 'test'
+  ...
+# Subtest: US fluid ounces and mass versus volume validation
+ok 19 - US fluid ounces and mass versus volume validation
+  ---
+  duration_ms: 1.870406
+  type: 'test'
+  ...
+# Subtest: swapping, scaling both prices, scaling one package and basis invariant
+ok 20 - swapping, scaling both prices, scaling one package and basis invariant
+  ---
+  duration_ms: 2.468085
+  type: 'test'
+  ...
+# Subtest: invalid input never becomes a free package or zero quantity
+ok 21 - invalid input never becomes a free package or zero quantity
+  ---
+  duration_ms: 0.948617
+  type: 'test'
+  ...
+# Subtest: near ties and very small/large positive values use relative tolerance
+ok 22 - near ties and very small/large positive values use relative tolerance
+  ---
+  duration_ms: 0.293778
+  type: 'test'
+  ...
+# Subtest: full comparison, edit preservation, cancel, detail/basis and reset confirmation
+ok 23 - full comparison, edit preservation, cancel, detail/basis and reset confirmation
+  ---
+  duration_ms: 4.19382
+  type: 'test'
+  ...
+# Subtest: dimension change clears quantities/units after confirmation and retains prices
+ok 24 - dimension change clears quantities/units after confirmation and retains prices
+  ---
+  duration_ms: 0.443911
+  type: 'test'
+  ...
+# Subtest: empty, zero and fractional item entries recover
+ok 25 - empty, zero and fractional item entries recover
+  ---
+  duration_ms: 0.26133
+  type: 'test'
+  ...
+# Subtest: preferences restore no prices and cannot overwrite user state
+ok 26 - preferences restore no prices and cannot overwrite user state
+  ---
+  duration_ms: 0.224761
+  type: 'test'
+  ...
+# Subtest: near-100% displayed savings are approximate for two positive prices
+ok 27 - near-100% displayed savings are approximate for two positive prices
+  ---
+  duration_ms: 0.552977
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 98.652357

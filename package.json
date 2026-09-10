@@ -1,0 +1,21 @@
+{
+  "name": "wrist-compare",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline compare utility for Xiaomi Smart Band 10",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.cjs",
+    "preview": "node scripts/make-preview.cjs",
+    "preflight": "node scripts/preflight.cjs",
+    "build": "npm run preflight && aiot build",
+    "keygen": "node scripts/keygen.cjs",
+    "release": "npm run preflight && aiot release"
+  },
+  "devDependencies": {
+    "aiot-toolkit": "2.0.5"
+  }
+}
