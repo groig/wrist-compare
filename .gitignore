@@ -53,3 +53,7 @@ Desktop.ini
 
 /output/
 /.playwright-cli/
+
+# Python cache for release artifact validation
+__pycache__/
+*.py[cod]

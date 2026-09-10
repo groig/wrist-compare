@@ -44,7 +44,7 @@ npm run release
 
 The first local signing pair is in `sign/private.pem` and `sign/certificate.pem`. **Back up both privately and reuse this pair for this app's updates.** The helper refuses to overwrite either file; if only one exists, recover its matching partner. Signing files are excluded from version control and are unrelated to any Bluetooth authentication token.
 
-No installation, commit, push or publication is automatic. Install the release using your established Band 10 app-installation workflow, verifying the app ID and version first.
+Install the release using your established Band 10 app-installation workflow, verifying the app ID and version first. Version-tag pushes publish GitHub Releases as described below; installation on the band remains manual.
 
 ## Engineering and validation
 
@@ -61,6 +61,34 @@ Storage uses documented `system.storage`, saves only changed preferences, serial
 Browser checks are also reproducible with Playwright CLI: open this project’s preview in a CLI browser session, then run `playwright-cli run-code --filename scripts/check-preview.js`. The check resets this preview’s preferences, exercises taps/keyboard input, and records screenshots under `output/playwright/`. Playwright is development tooling, not an app dependency.
 
 See [validation notes](docs/VALIDATION.md) for the actual test counts, compiler results, fresh output paths and remaining warnings. Build/preview success is distinct from unverified physical-band behavior.
+
+## GitHub Releases
+
+Pushing a stable version tag such as `v0.1.0` runs [.github/workflows/release.yml](.github/workflows/release.yml). It tests the app, rebuilds the preview, signs a fresh RPK and publishes it with a SHA-256 checksum on this repository's [Releases page](https://github.com/groig/wrist-compare/releases). Download the `.rpk` asset for installation. Branch pushes do not publish releases; Actions artifacts are not used.
+
+The repository needs two Actions secrets containing the **existing PEM files** for this app. From this project's root, configure them without printing their contents:
+
+```sh
+gh secret set RPK_PRIVATE_KEY --repo groig/wrist-compare < sign/private.pem
+gh secret set RPK_CERTIFICATE --repo groig/wrist-compare < sign/certificate.pem
+```
+
+Keep the same pair for all updates. The workflow validates that the private key and certificate match, restores them only after dependency installation/tests, and removes them when the job ends. It never generates a new signing identity. GitHub's built-in workflow token publishes the release; no separate personal token is needed.
+
+Before a new release, choose the next version and increment `src/manifest.json`'s `versionCode`. Update the manifest's `versionName` to the same version, then use `npm version <version> --no-git-tag-version` to update `package.json` and `package-lock.json`. Tests and preflight must pass. Commit and push the changes before tagging.
+
+For the initial release, the current metadata already matches:
+
+```sh
+git tag -a v0.1.0 -m "Release v0.1.0"
+git push origin v0.1.0
+```
+
+The tagged commit must contain the workflow and its helper scripts. The tag must exactly match the package, lockfile and manifest versions. Supported tags are stable `vMAJOR.MINOR.PATCH` versions; prerelease suffixes are rejected.
+
+Failed validation/builds do not publish a release. Uploads happen in a draft before publication; rerunning a failed upload can resume that draft. Existing published releases are never replaced—make a new version/tag for a changed build. A successful run links to the release in its job summary.
+
+CI runs on Ubuntu 24.04 with Node 22 and the existing toolkit 2.0.5. The release-validation tests also require Python 3 and OpenSSL. Run `npm test` for app and release checks; the GitHub workflow does not run browser automation. See [CI validation](docs/CI-VALIDATION.md) for checks completed during setup.
 
 ## References and license
 
